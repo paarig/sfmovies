@@ -16,5 +16,7 @@ describe('movie model', () => {
         'object'
       ]);
     });
-  })
-})
+
+  });
+
+});
