@@ -18,4 +18,17 @@ describe('movies integration', () => {
 
   });
 
+  describe('find', () => {
+
+    it('finds all movies', async () => {
+      const response = await Movies.inject({
+        url: '/movies',
+        method: 'GET'
+      });
+      expect(response.statusCode).to.eql(200);
+      expect(response.result).to.be.an('array');
+    });
+
+  });
+
 });
