@@ -90,13 +90,13 @@ describe('query validator', () => {
 
   });
 
-  describe('orderBy', () => {
+  describe('order_by', () => {
 
     it('only allows db columns', () => {
-      const payload = { orderBy: 'invalid db column' };
+      const payload = { order_by: 'invalid db column' };
       const result = Joi.validate(payload, QueryValidator);
 
-      expect(result.error.details[0].path[0]).to.eql('orderBy');
+      expect(result.error.details[0].path[0]).to.eql('order_by');
       expect(result.error.details[0].type).to.eql('any.allowOnly');
     });
 

@@ -38,7 +38,7 @@ describe('movie controller', () => {
 
   describe('find', () => {
 
-    it('finds a movie', async () => {
+    it('finds a movie w/o params', async () => {
       const movies = await Controller.find();
       expect(movies.length).to.eql(2);
       expect(movies[0].title).to.eql(firstMovie.title);
@@ -47,7 +47,7 @@ describe('movie controller', () => {
       expect(movies[1].release_year).to.eql(secondMovie.release_year);
     });
 
-    it('finds a movie with query params (order)', async () => {
+    it('finds a movie with order param', async () => {
       const params = {
         title: secondMovie.title,
         year: secondMovie.release_year,
@@ -63,14 +63,14 @@ describe('movie controller', () => {
       expect(movies[0].release_year).to.eql(secondMovie.release_year);
     });
 
-    it('finds a movie with query params (order & orderBy)', async () => {
+    it('finds a movie with order & order_by params', async () => {
       const params = {
         title: secondMovie.title,
         year: secondMovie.release_year,
         start_yr: firstMovie.release_year,
         end_yr: 1995,
         order: 'desc',
-        orderBy: 'title'
+        order_by: 'title'
       };
 
       const movies = await Controller.find(params);
@@ -80,13 +80,13 @@ describe('movie controller', () => {
       expect(movies[0].release_year).to.eql(secondMovie.release_year);
     });
 
-    it('finds a movie with query params (orderBy)', async () => {
+    it('finds a movie with order_by param', async () => {
       const params = {
         title: secondMovie.title,
         year: secondMovie.release_year,
         start_yr: firstMovie.release_year,
         end_yr: 1995,
-        orderBy: 'year'
+        order_by: 'year'
       };
 
       const movies = await Controller.find(params);
