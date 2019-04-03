@@ -4,6 +4,8 @@ const Controller = require('../../../../lib/plugins/features/movies/controller')
 
 const Movie = require('../../../../lib/models/movie');
 
+const Knex = require('../../../../lib/libraries/knex');
+
 describe('movie controller', () => {
 
   const firstMovie = {
@@ -16,11 +18,10 @@ describe('movie controller', () => {
     release_year: 1990
   };
 
-  before('Setting up the test DB', async () => {
-    await new Movie().query().del();
-
-    Controller.create(firstMovie);
-    Controller.create(secondMovie);
+  beforeEach('Setting up the test DB', async () => {
+    await Knex.raw('TRUNCATE movies CASCADE');
+    await new Movie().save(firstMovie);
+    await new Movie().save(secondMovie);
   });
 
   describe('create', () => {
