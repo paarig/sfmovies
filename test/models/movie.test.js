@@ -13,6 +13,7 @@ describe('movie model', () => {
         'id',
         'title',
         'release_year',
+        'locations',
         'object'
       ]);
     });

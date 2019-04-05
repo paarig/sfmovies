@@ -19,7 +19,7 @@ describe('movie controller', () => {
   };
 
   beforeEach('Setting up the test DB', async () => {
-    await Knex.raw('TRUNCATE movies CASCADE');
+    await Knex.raw('TRUNCATE TABLE movies, locations, locations_movies CASCADE');
     await new Movie().save(firstMovie);
     await new Movie().save(secondMovie);
   });
@@ -29,9 +29,34 @@ describe('movie controller', () => {
     it('creates a movie', async () => {
       const payload = { title: 'Forrest Gump' };
 
-      const movie = await Controller.create(payload);
+      const movie = await Controller.createMovie(payload);
 
       expect(movie.get('title')).to.eql(payload.title);
+    });
+
+    it('creates a new location', async () => {
+      const payload = { name: 'test location' };
+
+      const movieId = await new Movie({ title: firstMovie.title }).fetch().get('id');
+
+      const movie = await Controller.createLocation(payload, movieId);
+
+      expect(movie.get('title')).to.eql(firstMovie.title);
+      expect(movie.related('locations').length).to.eql(1);
+      expect(movie.related('locations').at(0).get('name')).to.eql('test location');
+    });
+
+    it('attaches old location to new movie', async () => {
+      const payload = { name: 'test location' };
+
+      const firstId = await new Movie({ title: firstMovie.title }).fetch().get('id');
+      await Controller.createLocation(payload, firstId);
+      const secondId = await new Movie({ title: secondMovie.title }).fetch().get('id');
+      const movie = await Controller.createLocation(payload, secondId);
+
+      expect(movie.get('title')).to.eql(secondMovie.title);
+      expect(movie.related('locations').length).to.eql(1);
+      expect(movie.related('locations').at(0).get('name')).to.eql('test location');
     });
 
   });
@@ -39,12 +64,12 @@ describe('movie controller', () => {
   describe('find', () => {
 
     it('finds a movie w/o params', async () => {
-      const movies = await Controller.find().get('models');
+      const movies = await Controller.find();
       expect(movies.length).to.eql(2);
-      expect(movies[0].get('title')).to.eql(firstMovie.title);
-      expect(movies[0].get('release_year')).to.eql(firstMovie.release_year);
-      expect(movies[1].get('title')).to.eql(secondMovie.title);
-      expect(movies[1].get('release_year')).to.eql(secondMovie.release_year);
+      expect(movies.at(0).get('title')).to.eql(firstMovie.title);
+      expect(movies.at(0).get('release_year')).to.eql(firstMovie.release_year);
+      expect(movies.at(1).get('title')).to.eql(secondMovie.title);
+      expect(movies.at(1).get('release_year')).to.eql(secondMovie.release_year);
     });
 
     it('finds a movie with order param', async () => {
@@ -56,10 +81,10 @@ describe('movie controller', () => {
         order: 'asc'
       };
 
-      const movies = await Controller.find(params).get('models');
+      const movies = await Controller.find(params);
       expect(movies.length).to.eql(1);
-      expect(movies[0].get('title')).to.eql(secondMovie.title);
-      expect(movies[0].get('release_year')).to.eql(secondMovie.release_year);
+      expect(movies.at(0).get('title')).to.eql(secondMovie.title);
+      expect(movies.at(0).get('release_year')).to.eql(secondMovie.release_year);
     });
 
     it('finds a movie with order & order_by params', async () => {
@@ -72,11 +97,11 @@ describe('movie controller', () => {
         order_by: 'title'
       };
 
-      const movies = await Controller.find(params).get('models');
+      const movies = await Controller.find(params);
 
       expect(movies.length).to.eql(1);
-      expect(movies[0].get('title')).to.eql(secondMovie.title);
-      expect(movies[0].get('release_year')).to.eql(secondMovie.release_year);
+      expect(movies.at(0).get('title')).to.eql(secondMovie.title);
+      expect(movies.at(0).get('release_year')).to.eql(secondMovie.release_year);
     });
 
     it('finds a movie with order_by param', async () => {
@@ -88,11 +113,11 @@ describe('movie controller', () => {
         order_by: 'year'
       };
 
-      const movies = await Controller.find(params).get('models');
+      const movies = await Controller.find(params);
 
-      expect(movies[0].get('title')).to.eql(secondMovie.title);
-      expect(movies[0].get('release_year')).to.eql(secondMovie.release_year);
       expect(movies.length).to.eql(1);
+      expect(movies.at(0).get('title')).to.eql(secondMovie.title);
+      expect(movies.at(0).get('release_year')).to.eql(secondMovie.release_year);
     });
 
   });
