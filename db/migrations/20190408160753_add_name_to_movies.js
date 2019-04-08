@@ -7,7 +7,7 @@ exports.up = async (Knex) => {
   await Knex.raw('ALTER TABLE movies ALTER COLUMN title DROP NOT NULL');
 };
 
- exports.down = async (Knex) => {
+exports.down = async (Knex) => {
   await Knex.schema.table('movies', (table) => {
     table.dropColumn('name');
   });
